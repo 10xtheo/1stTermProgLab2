@@ -19,6 +19,90 @@ void bubbleSort(int *array, int length)
   }
 }
 
+void shakerSort(int *array, int length)
+{
+  int start = 0;
+  int end = length - 2;
+  while (start <= end)
+  {
+    for (int i = start; i < length - 1 - start; ++i)
+    {
+      if (array[i] > array[i+1])
+        swap(array[i], array[i+1]);
+    }
+    for (int i = end ; i > 0 + start; --i)
+    {
+      if (array[i] < array[i-1])
+        swap(array[i], array[i-1]);
+    }
+    start += 1;
+    end -= 1;
+  }
+}
+
+void combSort(int *array, int length)
+{
+  int gap = length;
+  while (gap >= 1)
+  {
+    for (int i = 0; i + gap < length; ++i)
+    {
+      if (array[i] > array[i+gap])
+        swap(array[i], array[i+gap]);
+    }
+    gap /= 1.247;
+  }
+  for (int i = 0; i < length - 1; ++i)
+  {
+    for (int j = 0; j < length - 1 - i; ++j)
+    {
+      if (array[j] > array[j+1])
+        swap(array[j], array[j+1]);
+    }
+  } 
+}
+
+void insertSort(int *array, int length)
+{
+  int i, j, key;
+  for (int i = 1; i < length; ++i)
+  {
+    key = array[i];
+    j = i - 1;
+
+    while (j >= 0 && array[j] > key)
+    {
+      array[j+1] = array[j];
+      j--;
+    }
+    array[j+1] = key;
+  }
+}
+
+void quickSort(int *array, int finish, int begin)
+{
+  int r = begin;
+  int l = finish;
+  int mid = array[(r+l)/2];
+  while (r < l)
+  {
+    while (array[r] < mid) 
+      r++;
+    while (array[l] > mid) 
+      l--;
+    if (r <= l)
+    {
+      swap(array[r], array[l]);
+      r++;
+      l--;
+    } 
+  }
+  if (begin < l)
+    quickSort(array, l, begin);
+  if (r < finish)
+    quickSort(array, finish, r);
+}
+
 // #3
 
 int mxNonSorted(int *array, int length)
@@ -37,7 +121,7 @@ int mnNonSorted(int *array, int length)
   int mn = array[0];
   for (int i = 0; i < length; ++i)
   {
-    if (array[i] > mn)
+    if (array[i] < mn)
       mn = array[i];
   }
   return mn;
@@ -76,23 +160,16 @@ void mxMnSorted(int *array, int length)
 
 int round(float number)
 {
-  if (number >= 0)
+  if (abs(number) - int(abs(number)) >= 0.5)
   {
-    if (number - int(number) >= 0.5)
+    if (number > 0)
     {
       return int(number)+1;
     }
-    else
-      return int(number);
+    return int(number)-1;
   }
-  else 
-  {
-    if (abs(number + abs(int(number))) >= 0.5)
-    {
-      return int(number)-1;
-    }
-  }
-  return int(number);
+  else
+    return int(number);
 }
 // search
 int count(int *array, int length, int aim)
@@ -122,9 +199,20 @@ int searchD(int *array, int length, int aim)
   return r;
 }
 
-int binarySearch(int *array, int N, int aim)
+int binarySearch(int *array, int length, int aim) 
 {
-  return 0;
+  int start = 0;
+  int end = length-1;
+  while (start <= end) 
+  {
+    int mid = (start + end) / 2;
+    if (aim == array[mid])
+      return mid;
+    else if (aim > array[mid])
+      start = mid + 1;
+    else end = mid - 1;
+  }
+  return -1;
 }
 
 // #8
@@ -164,6 +252,16 @@ int main()
   }
   while (true)
   {
+  cout << "Выбeрете пункт программы: " << endl 
+    << "1. Получить случайный массив" << endl 
+    << "2. Получить отсортированный массив и время на его сортировку" << endl
+    << "3. Получить мин/макс эл-ты массива, время их поиска в неотсорт/отсорт массиве" << endl
+    << "4. Получить среднее значение элемента массива, индексы эл-т равных среднему, их кол-во" << endl
+    << "5. Получить кол-во элементов, меньших заданного значения" << endl
+    << "6. Получить кол-во элементов, больших заданного значения" << endl
+    << "7. Проверить наличие числа в массиве перебором и бинарным поиском" << endl
+    << "8. Поменять выбранные эл-ты массива местами по индексам" << endl
+    << "Нажмите Ctrl+c для выхода из программы" << endl;
   int choice;
   cin >> choice;
   switch (choice)
@@ -185,8 +283,9 @@ int main()
       }
       cout << endl;
       auto start = chrono::high_resolution_clock::now();
-
-      bubbleSort(a, N);
+      int finish = N - 1;
+      int begin = 0;
+      quickSort(a, finish, begin);
 
       auto end = chrono::high_resolution_clock::now();
       chrono::duration<float> duration = end - start;
@@ -209,7 +308,9 @@ int main()
       auto end = chrono::high_resolution_clock::now();
       chrono::duration<float> duration = end - start;
       cout << "Время поиска мин/макс в неотсортированном массиве: " << (duration.count() * 1000) << " мс" << endl;
-      bubbleSort(a, N);
+      int finish = N - 1;
+      int begin = 0;
+      quickSort(a, finish, begin);
       start = chrono::high_resolution_clock::now();
       mxMnSorted(a, N);
       end = chrono::high_resolution_clock::now();
@@ -219,11 +320,34 @@ int main()
       break;
 
     case 4:
+    {
+      int mx = mxNonSorted(a, N);
+      int mn = mnNonSorted(a, N);
+      int average = round((float(mx) + float(mn))) / 2.0;
+      int averageCount = 0;
+      cout << "Индексы элементов равных среднему значению: " << endl;
+      auto start = chrono::high_resolution_clock::now();
+      for (int i = 0; i < N; ++i)
+      {
+        if (a[i] == average)
+        {
+          cout << i << ' ';
+          averageCount += 1;
+        }
+      }
+      auto end = chrono::high_resolution_clock::now();
+      chrono::duration<float> duration = end - start;
+      cout << endl;
+      cout << "Их количество: "<< averageCount << endl;
+      cout << "Время поиска: " << (duration.count() * 1000) << " мс";
+    }
       break;
 
     case 5: 
     {
-      bubbleSort(a, N);
+      int finish = N - 1;
+      int begin = 0;
+      quickSort(a, finish, begin);
       int lessNumber = 0;
       int number;
       cin >> number;
@@ -233,13 +357,15 @@ int main()
         if (a[i] < number)
           lessNumber += 1;
       }
-      cout << lessNumber << endl;
+      cout << lessNumber;
     }
       break;
 
     case 6:
     {
-      bubbleSort(a, N);
+      int finish = N - 1;
+      int begin = 0;
+      quickSort(a, finish, begin);
       int greaterNumber = 0;
       int number;
       cin >> number;
@@ -249,7 +375,7 @@ int main()
         if (a[i] > number)
           greaterNumber += 1;
       }
-      cout << greaterNumber << endl;
+      cout << greaterNumber ;
     }
       break;
 
@@ -263,12 +389,15 @@ int main()
       auto end = chrono::high_resolution_clock::now();
       chrono::duration<float> duration = end - start;
       cout << "Время поиска перебором:  " << (duration.count() * 1000) << " мс" << endl;
-
+      int finish = N - 1;
+      int begin = 0;
+      quickSort(a, finish, begin);
       start = chrono::high_resolution_clock::now();
-      // result = binarySearch(b, N, number);
+      result = binarySearch(a, N, number);
       end = chrono::high_resolution_clock::now();
       chrono::duration<float> duration1 = end - start;
       cout << "Время поиска бинарным поиском:  " << (duration1.count() * 1000) << " мс" << endl;
+      cout << "Бинарный поиск быстрее в " << duration.count()/duration1.count() << "разa" << endl;
       if (result != -1)
         cout << "Есть такой элемент, его индекс = " << result;
     }
