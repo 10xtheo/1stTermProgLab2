@@ -185,6 +185,7 @@ int count(int *array, int length, int aim)
   return counter;
 }
 
+
 int searchD(int *array, int length, int aim)
 {
   int r = -1;
@@ -214,6 +215,29 @@ int binarySearch(int *array, int length, int aim)
   }
   return -1;
 }
+
+
+int binaryCount(int *array, int length, int aim)
+{
+  int counter = 0;
+  int begin = binarySearch(array, length, aim);
+  for (int i = begin; i < length; ++i)
+  {
+    if (array[i] == aim)
+      counter += 1;
+    if (array[i] != aim)
+      break;
+  }
+  for (int i = begin-1; i >= 0; --i)
+  {
+    if (array[i] == aim)
+      counter += 1;
+    if (array[i] != aim)
+      break;
+  } 
+  return counter;
+}
+
 
 // #8
 void swapByIndecies(int *array, int length)
@@ -261,6 +285,7 @@ int main()
     << "6. Получить кол-во элементов, больших заданного значения" << endl
     << "7. Проверить наличие числа в массиве перебором и бинарным поиском" << endl
     << "8. Поменять выбранные эл-ты массива местами по индексам" << endl
+    << "9. ИДЗ #9" << endl
     << "Нажмите Ctrl+c для выхода из программы" << endl;
   int choice;
   cin >> choice;
@@ -329,7 +354,7 @@ int main()
       auto start = chrono::high_resolution_clock::now();
       for (int i = 0; i < N; ++i)
       {
-        if (a[i] == average)
+        if (b[i] == average)
         {
           cout << i << ' ';
           averageCount += 1;
@@ -339,7 +364,16 @@ int main()
       chrono::duration<float> duration = end - start;
       cout << endl;
       cout << "Их количество: "<< averageCount << endl;
-      cout << "Время поиска: " << (duration.count() * 1000) << " мс";
+      cout << "Время поиска в неотсорт. массиве: " << (duration.count() * 1000) << " мс" << endl;
+      cout << "Время поиска в отсорт. массиве с использованием бин. поиска: ";
+      int finish = N - 1;
+      int begin = 0;
+      quickSort(a, finish, begin);
+      start = chrono::high_resolution_clock::now();
+      binaryCount(a, N, average);
+      end = chrono::high_resolution_clock::now();
+      chrono::duration<float> duration1 = end - start;
+      cout << (duration1.count() * 1000) << " мс";
     }
       break;
 
@@ -410,6 +444,33 @@ int main()
       auto end = chrono::high_resolution_clock::now();
       chrono::duration<float> duration = end - start;
       cout << "Время обмена:  " << (duration.count() * 1000) << " мс";
+      break;
+    }
+    case 9:
+    {
+      int value;
+      cout << "Ваше число: ";
+      cin >> value;
+      srand(time(0));
+      int counter = 0;
+      for (int i = 1; i < N; i += 2) 
+      {
+        a[i] -= value;
+        a[i] *= (rand() % 9 + 1);
+      }
+      int del[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+      for (int i = 1; i <= 9; ++i)
+      {
+        for (int j = 0; j < N; ++j)
+        {
+          if (a[j] % i == 0)
+            del[i-1] += 1;
+        }
+      }
+      for (int i = 0; i < 9; ++i)
+      {
+        cout << del[i] << " чисел делится на " << i+1 << endl;
+      }
       break;
     }
     default:
