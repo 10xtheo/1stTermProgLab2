@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <clocale>
 #include <cstdlib>
 #include <iostream>
 #include <chrono>
@@ -139,8 +140,8 @@ int mnSorted(int *array, int length)
 
 void mxMnNonSorted(int *array, int length)
 {
-  int mxA = -99;
-  int mnA = 99;
+  int mxA = array[0];
+  int mnA = array[0];
   for (int i = 0; i < length; ++i)
   {
     if (array[i] < mnA)
@@ -221,20 +222,8 @@ int binaryCount(int *array, int length, int aim)
 {
   int counter = 0;
   int begin = binarySearch(array, length, aim);
-  for (int i = begin; i < length; ++i)
-  {
-    if (array[i] == aim)
-      counter += 1;
-    if (array[i] != aim)
-      break;
-  }
-  for (int i = begin-1; i >= 0; --i)
-  {
-    if (array[i] == aim)
-      counter += 1;
-    if (array[i] != aim)
-      break;
-  } 
+  for (int i = begin; i < length && (array[i] != aim); ++i, counter += 1);
+  for (int i = begin-1; i >= 0; --i, counter += 1);
   return counter;
 }
 
@@ -262,6 +251,7 @@ void swapByIndecies(int *array, int length)
 
 int main()
 {
+  setlocale(LC_ALL, "Russian");
   srand(time(0));
   const int N = 100;
   int a[N];
@@ -340,7 +330,7 @@ int main()
       mxMnSorted(a, N);
       end = chrono::high_resolution_clock::now();
       chrono::duration<float> duration1 = end - start;
-      cout << "Время поиска мин/макс в неотсортированном массиве: " << (duration1.count() * 1000) << " мс";
+      cout << "Время поиска мин/макс в отсортированном массиве: " << (duration1.count() * 1000) << " мс";
     }
       break;
 
@@ -350,6 +340,7 @@ int main()
       int mn = mnNonSorted(a, N);
       int average = round((float(mx) + float(mn))) / 2.0;
       int averageCount = 0;
+      cout << "Среднее значение: " << average << endl;
       cout << "Индексы элементов равных среднему значению: " << endl;
       auto start = chrono::high_resolution_clock::now();
       for (int i = 0; i < N; ++i)
@@ -431,7 +422,7 @@ int main()
       end = chrono::high_resolution_clock::now();
       chrono::duration<float> duration1 = end - start;
       cout << "Время поиска бинарным поиском:  " << (duration1.count() * 1000) << " мс" << endl;
-      cout << "Бинарный поиск быстрее в " << duration.count()/duration1.count() << "разa" << endl;
+      cout << "Бинарный поиск быстрее в " << duration.count()/duration1.count() << " разa" << endl;
       if (result != -1)
         cout << "Есть такой элемент, его индекс = " << result;
     }
